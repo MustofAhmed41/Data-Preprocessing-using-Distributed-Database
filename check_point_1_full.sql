@@ -88,22 +88,22 @@ SELECT * FROM raw_data;
 
 /*    SENDING DATA TO CLIENTS     */
 
-/*
+
 DECLARE
 	
 BEGIN
 	
-	FOR r IN (SELECT id,numerical_col_1, categorical_col_1 FROM RAW_DATA) 
+	FOR r IN (SELECT * FROM RAW_DATA) 
 		LOOP					
-			INSERT INTO fragment_1@site1(id, numerical_col_1) VALUES (r.id,r.numerical_col_1);			
-			INSERT INTO fragment_2@site1(id, categorical_col_1) VALUES (r.id,r.categorical_col_1);			
+			INSERT INTO fragment_1@site1(id, numerical_col_1, numerical_col_2, numerical_col_3) VALUES (r.id,r.numerical_col_1,r.numerical_col_2,r.numerical_col_3);
+			INSERT INTO fragment_2@site2(id, categorical_col_1, categorical_col_2) VALUES (r.id,r.categorical_col_1,r.categorical_col_2);
 	END LOOP;
 	
 END;
 /
 
+
 commit;
-*/
 
 SELECT id, numerical_col_1 FROM raw_data;
 
