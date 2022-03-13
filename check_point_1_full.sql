@@ -28,10 +28,10 @@ INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, nu
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (2,474, 'White', 115,372, 'Honda');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (3,593, 'Black', 3,593, 'Nissan');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (4,687, 'Brown', 57,687, 'Lexus');
-INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (5,543, 'Brown', 0,589, 'Honda');
+INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (5,543, 'Red', 0,589, 'Honda');
 INSERT INTO RAW_DATA(id, numerical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (6,527, 114,632, 'Toyota');
-INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (7,330, 'Blue', 14,665, 'Lexus');
-INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (8,589, 'Purple', 169,372, 'Lexus');
+INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (7,330, 'Gray', 14,665, 'Lexus');
+INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (8,589, 'Black', 169,372, 'Lexus');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (9,665, 'Burgundy', 42,307, 'Toyota');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (10,372, 'Burgundy', 64,377, 'Honda');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (11,368, 'Purple', 92,646, 'Lexus');
@@ -80,6 +80,39 @@ INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, nu
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (52,1000, 'Purple', 0,632, 'Honda');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (53,25, 'Black', 97,632, 'Honda');
 INSERT INTO RAW_DATA(id, numerical_col_1, categorical_col_1, numerical_col_2, numerical_col_3, categorical_col_2) VALUES (54,40, 'Gray', 200,632, 'Toyota');
+
+
+CREATE OR REPLACE FUNCTION get_unique_val
+RETURN NUMBER
+IS
+C number;
+BEGIN
+	select DISTINCT COUNT(*) into C from raw_data;
+	return C; 
+END get_unique_val;
+/
+
+
+create or replace function check_validity(A IN raw_data.categorical_col_1%type)
+return number
+is
+x number;
+begin
+
+	for i in 1..LENGTH(A) LOOP		
+		if SUBSTR(A, i , 1) >= '1' and SUBSTR(A, i ,1) <= '9' then
+			x := 1;
+		else			
+			return 0;
+		END IF;
+		
+	END LOOP;
+	return 1;
+	
+END check_validity;
+/
+
+
 
 
 SELECT * FROM raw_data WHERE numerical_col_1 IS NULL;  -- PRINT NULL VALUES.
@@ -426,6 +459,30 @@ END;
 
 
 select id, numerical_col_3 from raw_data;
+
+
+
+
+DECLARE
+	valid_flag number;
+BEGIN
+	valid_flag := 0;
+	FOR r IN (SELECT categorical_col_1 FROM RAW_DATA)  LOOP
+		valid_flag := check_validity(r.categorical_col_1);		
+		if valid_flag = 1 then
+			exit;
+		end if;
+	END LOOP;
+	
+	if valid_flag = 1 then
+		DBMS_OUTPUT.PUT_LINE('Bad');
+	else
+		DBMS_OUTPUT.PUT_LINE('All good');
+	end if;
+	
+END;
+/
+
 
 
 
