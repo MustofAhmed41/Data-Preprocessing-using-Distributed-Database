@@ -48,3 +48,45 @@ create or replace view fragment_2_view(id, category_1, category_2) AS
 select F.id, f.categorical_col_1, f.categorical_col_2
 from Fragment_2 F;
 
+
+CREATE OR REPLACE TRIGGER UpdatedData1
+BEFORE UPDATE
+OF numerical_col_1
+ON Fragment_1
+FOR EACH ROW
+DECLARE
+BEGIN
+	if :OLD.numerical_col_1 is null then
+		DBMS_OUTPUT.PUT_LINE('Filled missing Data in Fragment 1, notified using trigger');
+	end if;
+END;
+/
+
+
+CREATE OR REPLACE TRIGGER UpdatedData2
+BEFORE UPDATE
+OF categorical_col_1
+ON Fragment_2   
+FOR EACH ROW
+DECLARE
+BEGIN
+	if :OLD.categorical_col_1 is null then
+		DBMS_OUTPUT.PUT_LINE('Filled missing Data in Fragment 2, notified using trigger');
+	end if;
+END;
+/
+
+
+create or replace package fill_missing_values AS 
+	
+	PROCEDURE fill_col;
+	
+END fill_missing_values;
+/
+
+
+
+
+
+
+

@@ -26,29 +26,39 @@ END check_validity;
 /
 
 
-DECLARE
-	
+
+create or replace PACKAGE body fill_missing_values as
+
+	PROCEDURE fill_col
+	IS
 	most_frequent_val varchar2(30);
 	num_of_occurences INT;	
+	BEGIN
+		select * into most_frequent_val,num_of_occurences from (select categorical_col_1, count(*) from fragment_2 
+		group by categorical_col_1 order by count(*) desc) where rownum = 1;
+		
+		DBMS_OUTPUT.PUT_LINE('Most Frequent value: ' || most_frequent_val);
+		DBMS_OUTPUT.PUT_LINE(' Number of times appeared: ' || num_of_occurences);
+		
+		FOR r IN (SELECT id,categorical_col_1 FROM fragment_2) 
+			LOOP
+			IF  r.categorical_col_1 IS NULL then 
+				DBMS_OUTPUT.PUT_LINE('Missing Categorical Value with id : ' ||  r.id);
+				UPDATE fragment_2 SET categorical_col_1 = most_frequent_val WHERE id = r.id;
+			END IF;
+		END LOOP;
+	
+	END fill_col;
+	
+end fill_missing_values;
+/
+
+
+DECLARE
 	
 BEGIN
-	
 	DBMS_OUTPUT.PUT_LINE('Finding Missing Values For Categorical Features');
-	
-	select * into most_frequent_val,num_of_occurences from (select categorical_col_1, count(*) from fragment_2 
-	group by categorical_col_1 order by count(*) desc) where rownum = 1;
-	
-	DBMS_OUTPUT.PUT_LINE('Most Frequent value: ' || most_frequent_val);
-	DBMS_OUTPUT.PUT_LINE(' Number of times appeared: ' || num_of_occurences);
-	
-	FOR r IN (SELECT id,categorical_col_1 FROM fragment_2) 
-		LOOP
-		IF  r.categorical_col_1 IS NULL then 
-			DBMS_OUTPUT.PUT_LINE('Missing Categorical Value with id : ' ||  r.id);
-			UPDATE fragment_2 SET categorical_col_1 = most_frequent_val WHERE id = r.id;
-		END IF;
-	END LOOP;
-	
+	fill_missing_values.fill_col;
 END;
 /
 

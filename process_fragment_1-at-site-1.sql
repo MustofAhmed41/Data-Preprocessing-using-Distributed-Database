@@ -5,6 +5,9 @@ SET VERIFY OFF;
 
 -- FILLING NULL VALUES WITH MEAN
 
+
+
+
 CREATE OR REPLACE FUNCTION get_size_of_data
 RETURN NUMBER
 IS
@@ -67,39 +70,48 @@ END mean_calculate;
 /
 
 
+create or replace PACKAGE body fill_missing_values as
+
+	PROCEDURE fill_col
+	IS
+	mean_val float := 0;
+	mean_counter INT := 0;
+	BEGIN
+		DBMS_OUTPUT.PUT_LINE('Finding Missing Values for Numerical Feature');
+	
+		FOR r IN (SELECT numerical_col_1 FROM fragment_1) 
+			LOOP
+			IF  r.numerical_col_1 IS NOT NULL then 
+				mean_val := mean_val + r.numerical_col_1;
+				mean_counter := mean_counter + 1;
+			END IF;
+		END LOOP;
+		
+			
+		mean_calculate(mean_val,mean_counter);
+		
+		DBMS_OUTPUT.PUT_LINE('Mean Value to fill the missing values : ' ||  mean_val);
+		
+		FOR r IN (SELECT id,numerical_col_1 FROM fragment_1) 
+			LOOP
+			IF  r.numerical_col_1 IS NULL then 
+				DBMS_OUTPUT.PUT_LINE('Missing Numerical Value with id : ' ||  r.id);
+				UPDATE fragment_1 SET numerical_col_1 = mean_val WHERE id = r.id;
+			END IF;
+		END LOOP;
+	END fill_col;
+	
+end fill_missing_values;
+/
 
 
 
 select * from fragment_1;
 
 DECLARE
-	mean_val float := 0;
-	mean_counter INT := 0;
+
 BEGIN
-
-	DBMS_OUTPUT.PUT_LINE('Finding Missing Values for Numerical Feature');
-	
-	FOR r IN (SELECT numerical_col_1 FROM fragment_1) 
-		LOOP
-		IF  r.numerical_col_1 IS NOT NULL then 
-			mean_val := mean_val + r.numerical_col_1;
-			mean_counter := mean_counter + 1;
-		END IF;
-	END LOOP;
-	
-		
-	mean_calculate(mean_val,mean_counter);
-	
-	DBMS_OUTPUT.PUT_LINE('Mean Value to fill the missing values : ' ||  mean_val);
-	
-	FOR r IN (SELECT id,numerical_col_1 FROM fragment_1) 
-		LOOP
-		IF  r.numerical_col_1 IS NULL then 
-			DBMS_OUTPUT.PUT_LINE('Missing Numerical Value with id : ' ||  r.id);
-			UPDATE fragment_1 SET numerical_col_1 = mean_val WHERE id = r.id;
-		END IF;
-	END LOOP;
-
+	fill_missing_values.fill_col;
 END;
 /
 
