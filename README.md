@@ -27,6 +27,7 @@ The preprocessed data can be loaded back to the main server.
   * Sending data back and forth between client and server
   * Vertically fragment data in the main server
   * Read data from the client server on the main sever
+  * Each client have different prepreocessing techniques for different types of data
   * **Client 1 (Numerical values)**
     *   Filling missing values using  mean value
     *   Handling Outliers
@@ -37,9 +38,6 @@ The preprocessed data can be loaded back to the main server.
     *   Label Encoding
     *   Fill missing values with mode of that column
     *   Check if data contains any numerical values or not 
-    
-  
-  * The users will be able to find parking areas easily, it will save a lot of fuel for them. It also reduces the chances of them being fined. This app will help car parking owners bring in more customers for them.
 
 - ***Platform Details***: 
 
